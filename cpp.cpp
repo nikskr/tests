@@ -2,8 +2,10 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <unordered_map>
 #include <stack>
 #include <algorithm>
+#include <queue>
 
 using namespace std;
 
@@ -225,6 +227,195 @@ forwardList createNodeList(vector <int> arr) {
 
 
 
+
+//---------------6----------------------------------------------------------------------------------------------
+
+
+
+struct biDirNode {
+    int key;
+    int value;
+    biDirNode* next;
+    biDirNode* prev;
+    biDirNode(int key, int val) : key(key), value(val), next(nullptr), prev(nullptr) {};
+};
+
+struct biDirList {
+    biDirNode* head;
+    biDirNode* tail;
+
+    biDirList() : head(nullptr), tail(nullptr) {};
+
+    biDirNode* addNodeHead(int key, int val) {
+        biDirNode* p = new biDirNode(key, val);
+        if (head == nullptr) {
+            head = p;
+            tail = p;
+            return p;
+        }
+        else {
+            p->next = head;
+            head->prev = p;
+            head = p;
+        }
+        return p;
+    }
+
+    void removeTail() {
+        biDirNode* nodeToDelete = tail;
+        if (tail -> prev) {
+            tail = tail->prev;
+            tail->next = nullptr;
+        }
+        else {
+            head = nullptr;
+            tail = nullptr;
+        }
+        
+        delete nodeToDelete;
+    }
+
+    biDirNode* extractNode(biDirNode* p) {
+        if (p == nullptr) return nullptr;
+        biDirNode* prev = p->prev;
+        biDirNode* next = p->next;
+        if (p->prev) {
+            prev->next = next;
+        }
+        else {
+            head = next;
+        }
+
+        if (p->next) {
+            next->prev = prev;
+        }
+        else {
+            tail = prev;
+        }
+
+        if (p == head) head = next;
+        if (p == tail) tail = prev;
+
+        p->next = nullptr;
+        p->prev = nullptr;
+        return p;
+    }
+
+
+};
+
+struct LRUCache {
+    int csize;
+    unordered_map <int, biDirNode*> hashTable;
+    biDirList* list;
+
+    LRUCache(int size) : csize(size), hashTable(), list(new biDirList()) {};
+
+    int get(int key) {
+        if (hasCacheKey(key)) {
+            auto it = hashTable.find(key);
+            if (it->second) {
+                biDirNode* p = list->extractNode(it->second);
+                int result = list->addNodeHead(key, it->second->value)->value;
+                delete p;
+                return result;
+            }
+        }
+        else return -1;
+    }
+
+    void put(int key, int val) {
+        if (hasCacheKey(key)) {
+            biDirNode* p = list->extractNode(hashTable.find(key)->second);
+            if (p->value != val) {
+                p->value = val;
+            }
+            hashTable.erase(key);
+            list->addNodeHead(key, val);
+            hashTable.insert({ key, list->head });
+            delete p;
+            return;
+        } if (isCacheFull()) {
+            int removeKey = list->tail->key;
+            list->removeTail();
+            hashTable.erase(removeKey);
+        }
+        list->addNodeHead(key, val);
+        hashTable.insert({ key, list->head });
+    }
+
+    bool hasCacheKey(int key) {
+        auto it = hashTable.find(key);
+        if (it != hashTable.end()) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    bool isCacheFull() {
+        if (hashTable.size() >= csize) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+};
+
+//---------------7----------------------------------------------------------------------------------------------
+
+
+struct TreeNode {
+    int value;
+    TreeNode* left;
+    TreeNode* right;
+
+    TreeNode(int val) : value(val), left(nullptr), right(nullptr) {};
+};
+
+vector<vector<int>> breadthFirstSearch(TreeNode* root) {
+    if (root == nullptr) return { {} };
+
+    queue<TreeNode*> q;
+    q.push(root);
+    int lvl = 0;
+    vector<vector<int>> arr;
+
+    while (!q.empty()) {
+        arr.resize(lvl + 1);
+        int lvlSize = q.size();
+        for (int i = 0; i < lvlSize; i++) {
+            TreeNode* current = q.front();
+
+            q.pop();
+
+            arr[lvl].push_back(current->value);
+
+            if (current->left != nullptr) q.push(current->left);
+            if (current->right != nullptr) q.push(current->right);
+        }
+        lvl++;
+    }
+
+    return arr;
+}
+
+void printResult(vector<vector<int>> arr) {
+    cout << "[";
+    for (int i = 0; i < arr.size(); i++) {
+        cout << " [ ";
+
+        for (int j = 0; j < arr[i].size(); j++)
+            cout << arr[i][j] << ' ';
+
+        cout << "] ";
+    }
+    cout << "]";
+}
+
+
 int main()
 {
     //---------------1-----------------------------------
@@ -266,6 +457,48 @@ int main()
     l = createNodeList({ 1, 2, 3, 4, 5, 6, 7 });
     l.print();
     reverseList(l).print();*/
+
+
+    //--------------------6------------------------------
+    /*LRUCache* cache = new LRUCache(4);
+    cache->put(2, 5555);
+    cache->put(3, 8756);
+    cache->put(4, 123);
+    cache->put(5, 654);
+    biDirList* l = cache->list;
+    biDirNode* p = l->head;
+    while (p != nullptr) {
+        cout << p->value << " - prev: " << p->prev << ", next: " << p->next << endl;
+        p = p->next;
+    }
+    cout << endl;
+
+    cache->put(3, 128);
+    cache->put(2, 255);
+    cache->put(5, 77777);
+    cache->put(4, 987);
+
+    p = l->head;
+    while (p != nullptr) {
+        cout << p->value << " - prev: " << p->prev << ", next: " << p->next << endl;
+       p = p->next;
+    }
+    cout << endl;*/
+
+    //--------------------7------------------------------
+
+    /*TreeNode* root = new TreeNode(1);
+    root->left = new TreeNode(2);
+    root->right = new TreeNode(3);
+    root->left->left = new TreeNode(4);
+    root->left->left->right = new TreeNode(7);
+    root->right->left = new TreeNode(5);
+    root->right->right = new TreeNode(6);
+    root->right->left->left = new TreeNode(8);
+
+    vector<vector<int>> result = breadthFirstSearch(root);
+    printResult(result);*/
+
 
 }
 
