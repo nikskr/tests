@@ -9,7 +9,6 @@
 
 using namespace std;
 
-
 //---------------1----------------------------------------------------------------------------------------------
 
 vector<int> getIndexForSum(const vector<int>& nums, int target) {
@@ -26,15 +25,13 @@ vector<int> getIndexForSum(const vector<int>& nums, int target) {
     return { 0, 0 };
 }
 
-
-
 //---------------2----------------------------------------------------------------------------------------------
 
 string strToLowerCase(string str) {
     string newStr = str;
     transform(newStr.begin(), newStr.end(), newStr.begin(), [](unsigned char c) {
         return tolower(c);
-        });
+    });
     return newStr;
 }
 
@@ -60,8 +57,6 @@ bool isPalindrome(string str) {
     cout << "true" << endl;
     return true;
 }
-
-
 
 //---------------3-----------------------------------------------------------------------------------------
 
@@ -92,8 +87,6 @@ bool isValidBracketSequence(string str) {
 
     return true;
 }
-
-
 
 //---------------4----------------------------------------------------------------------------------------------
 
@@ -134,7 +127,6 @@ int binarySearch(vector <int> arr, int target) {
     cout << loopCounter << endl;
     return -1;
 }
-
 
 //---------------5----------------------------------------------------------------------------------------------
 
@@ -225,12 +217,7 @@ forwardList createNodeList(vector <int> arr) {
     return l;
 }
 
-
-
-
 //---------------6----------------------------------------------------------------------------------------------
-
-
 
 struct biDirNode {
     int key;
@@ -366,7 +353,6 @@ struct LRUCache {
 
 //---------------7----------------------------------------------------------------------------------------------
 
-
 struct TreeNode {
     int value;
     TreeNode* left;
@@ -415,10 +401,67 @@ void printResult(vector<vector<int>> arr) {
     cout << "]";
 }
 
+//---------------8----------------------------------------------------------------------------------------------
+
+bool hasSymbol(string str, unsigned char ch) {
+    if (str.find(ch) != string::npos) {
+        return true;
+    }
+    return false;
+}
+
+int countMaxUniqueSymbols(string str) {
+    string substr = "";
+    int counter = 0;
+    for (int i = 0; i < str.length(); i++) {
+        if (hasSymbol(substr, str[i])) {
+            substr.erase(0, substr.find(str[i]) + 1);
+            substr += str[i];
+        }
+        else {
+            substr += str[i];
+            if (substr.length() > counter) {
+                counter++;
+            }
+        }
+    }
+    return counter;
+}
+
+//---------------9----------------------------------------------------------------------------------------------
+
+int coins(vector<int> coinArr, int amount) {
+
+    int* dp = new int[amount + 1];
+    dp[0] = 0;
+    int inf = 9999999;
+
+    for (int i = 1; i < amount + 1; i++) {
+        dp[i] = inf;
+    }
+
+    for (int i = 1; i < amount + 1; i++) {
+        for (int coin = 0; coin < coinArr.size(); coin++) {
+            if (coinArr[coin] <= i) {
+                dp[i] = min(dp[i], dp[i - coinArr[coin]] + 1);
+            }
+        }
+    }
+
+    int result = dp[amount];
+
+    delete dp;
+
+    if (result == inf) return -1;
+
+    return result;
+}
+
 
 int main()
 {
     //---------------1-----------------------------------
+
     /*vector<int> arr1 = {1, 2, 3, 4, 5, 6, 7};
     vector<int> arr2 = {7, 6, 5, 4, 3, 2, 1};
     vector<int> arr3 = {1, 7, 2, 6, 3, 5, 4};
@@ -433,12 +476,14 @@ int main()
     }*/
 
     //-----------------2---------------------------------
+
     /*isPalindrome("A man, a plan, a canal: Panama");
     isPalindrome("vevge");
     isPalindrome("vevev");
     isPalindrome("abba");*/
     
     //--------------------3-----------------------------
+
     /*cout << isValidBracketSequence("([{}])") << endl;
     cout << isValidBracketSequence("([{}]") << endl;
     cout << isValidBracketSequence("([(){}])") << endl;
@@ -452,6 +497,7 @@ int main()
     
 
     //--------------------5------------------------------
+
     /*forwardList l;
     cout << l.isEmpty() << endl;
     l = createNodeList({ 1, 2, 3, 4, 5, 6, 7 });
@@ -460,6 +506,7 @@ int main()
 
 
     //--------------------6------------------------------
+
     /*LRUCache* cache = new LRUCache(4);
     cache->put(2, 5555);
     cache->put(3, 8756);
@@ -498,6 +545,22 @@ int main()
 
     vector<vector<int>> result = breadthFirstSearch(root);
     printResult(result);*/
+
+    //--------------------8------------------------------
+
+    /*cout << countMaxUniqueSymbols("abcde") << endl;
+    cout << countMaxUniqueSymbols("aaaaa") << endl;
+    cout << countMaxUniqueSymbols("AaBbC") << endl;
+    cout << countMaxUniqueSymbols("a b !") << endl;
+    cout << countMaxUniqueSymbols("") << endl;*/
+
+    //--------------------9------------------------------
+    
+    /*cout << coins({ 1, 3, 4 }, 10) << endl;
+    cout << coins({ 1, 3, 4 }, 6) << endl;
+    cout << coins({ 1, 3, 4 }, 7) << endl;*/
+
+    //--------------------10------------------------------
 
 
 }
