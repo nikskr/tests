@@ -6,6 +6,7 @@
 #include <stack>
 #include <algorithm>
 #include <queue>
+#include <cstdlib>
 
 using namespace std;
 
@@ -457,6 +458,158 @@ int coins(vector<int> coinArr, int amount) {
     return result;
 }
 
+//---------------10----------------------------------------------------------------------------------------------
+
+vector<vector<char>> createBinaryMatrix(int n) {
+    vector<vector<char>> matrix(n);
+    srand(time(NULL));
+
+
+    for (int i = 0; i < n; i++) {
+        matrix[i].reserve(n);
+        for (int j = 0; j < n; j++) {
+            (rand() % 2 == 1) ? matrix[i].push_back('1') : matrix[i].push_back('0');
+        }
+    }
+    return matrix;
+}
+
+void printMatrix(vector<vector<char>> matrix) {
+    cout << '[' << endl;
+
+    for (int i = 0; i < matrix.size(); i++) {
+        cout << " [ ";
+        for (int j = 0; j < matrix[i].size(); j++) {
+            cout << matrix[i][j] << ' ';
+        }
+        cout << ']' << endl;
+    }
+
+    cout << ']' << endl;
+}
+
+void clearIslandFields(vector<vector<char>>& matrix, int i, int j) {
+    if (i > matrix.size() - 1 || i < 0 || j > matrix[i].size() - 1 || j < 0 || matrix[i][j] != '1') {
+        return;
+    }
+
+    matrix[i][j] = '0';
+
+    clearIslandFields(matrix, i + 1, j);
+    clearIslandFields(matrix, i - 1, j);
+    clearIslandFields(matrix, i, j + 1);
+    clearIslandFields(matrix, i, j - 1);
+}
+
+int countIslands(vector<vector<char>> matrix) {
+    int counter = 0;
+
+    for (int i = 0; i < matrix.size(); i++) {
+        for (int j = 0; j < matrix[i].size(); j++) {
+            if (matrix[i][j] == '1') {
+                counter++;
+                clearIslandFields(matrix, i, j);
+            }
+        }
+    }
+
+    return counter;
+}
+
+//---------------11----------------------------------------------------------------------------------------------
+
+void printArray(vector<int> arr) {
+    cout << "[ ";
+    for (int i = 0; i < arr.size(); i++) {
+        cout << arr[i] << " ";
+    }
+    cout << "]" << endl;
+}
+
+float medianOfSortedArrays(vector<int> nums1, vector<int> nums2) {
+    if (nums2.size() < nums1.size()) {
+        vector<int> h = nums1;
+        nums1 = nums2;
+        nums2 = h;
+    }
+
+    int negInf = -9999999;
+    int posInf = 9999999;
+
+    int len1 = nums1.size();
+    int len2 = nums2.size();
+    int totalLen = len1 + len2;
+    int halfTotalLen = ceil(totalLen / 2);
+
+    int nums1LeftPtr = 0;
+    int nums1RightPtr = len1 - 1;
+
+    while (true) {
+        int nums1MidPtr = ceil((nums1LeftPtr + nums1RightPtr) / 2);
+        int nums2MidPtr = halfTotalLen - nums1MidPtr - 2;
+        int nums1MidLeftVal, nums1MidRightVal, nums2MidLeftVal, nums2MidRightVal;
+        if (nums1MidPtr >= 0) {
+            nums1MidLeftVal = nums1[nums1MidPtr];
+        }
+        else {
+            nums1MidLeftVal = negInf;
+        }
+
+        if (nums1MidPtr + 1 < len1) {
+            nums1MidRightVal = nums1[nums1MidPtr + 1];
+        }
+        else {
+            nums1MidRightVal = posInf;
+        }
+
+        if (nums2MidPtr >= 0) {
+            nums2MidLeftVal = nums2[nums2MidPtr];
+        }
+        else {
+            nums2MidLeftVal = negInf;
+        }
+
+        if (nums2MidPtr + 1 < len2) {
+            nums2MidRightVal = nums2[nums2MidPtr + 1];
+        }
+        else {
+            nums2MidRightVal = posInf;
+        }
+        
+        if (nums1MidLeftVal <= nums2MidRightVal && nums2MidLeftVal <= nums1MidRightVal) {
+            if (totalLen % 2 == 0) {
+                return (max(nums1MidLeftVal, nums2MidLeftVal) + min(nums1MidRightVal, nums2MidRightVal)) / 2.;
+            }
+            else {
+                return min(nums1MidRightVal, nums2MidRightVal);
+            }
+        }
+        else {
+            if (nums1MidLeftVal > nums2MidLeftVal) {
+                nums1RightPtr = nums1MidPtr - 1;
+            }
+            else {
+                nums1LeftPtr = nums1MidPtr + 1;
+            }
+        }
+
+    }
+}
+
+//---------------12----------------------------------------------------------------------------------------------
+
+struct Trie {
+    string value;
+    Trie* left;
+    Trie* right;
+
+    Trie(string val) : value(val), left(nullptr), right(nullptr) {};
+
+    void insert(string str) {
+
+    }
+};
+
 
 int main()
 {
@@ -490,11 +643,11 @@ int main()
     cout << isValidBracketSequence("({}])") << endl;*/
 
     //--------------------4-----------------------------
+
     /*binarySearch({ 1, 2, 3, 4, 5 ,6, 7, 8 }, 5);
     binarySearch({ 1, 2, 3, 4, 5 ,6, 7, 8 }, 5);
     binarySearch({ 1, 2, 3, 4, 5 ,6, 7, 8 }, 7);
     binarySearch({ 1, 2, 3, 4, 5 ,6, 7, 8 }, 1);*/
-    
 
     //--------------------5------------------------------
 
@@ -562,6 +715,28 @@ int main()
 
     //--------------------10------------------------------
 
+    //vector<vector<char>> matrix = createBinaryMatrix(7);
+    //printMatrix(matrix);
+    //int islandsAmount = countIslands(matrix);
+    //cout << islandsAmount << endl;
+
+    //matrix = createBinaryMatrix(7);
+    //printMatrix(matrix);
+    //islandsAmount = countIslands(matrix);
+    //cout << islandsAmount << endl;
+
+    //matrix = createBinaryMatrix(7);
+    //printMatrix(matrix);
+    //islandsAmount = countIslands(matrix);
+    //cout << islandsAmount << endl;
+
+    //--------------------11------------------------------
+
+    /*vector<int> arr1 = { 1, 2 };
+    vector<int> arr2 = { 5, 10};
+    printArray(arr1);
+    printArray(arr2);
+    cout << "Median: " << medianOfSortedArrays(arr1, arr2) << endl;*/
 
 }
 
