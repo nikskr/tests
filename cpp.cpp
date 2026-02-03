@@ -3,10 +3,12 @@
 #include <string>
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 #include <stack>
 #include <algorithm>
 #include <queue>
 #include <cstdlib>
+#include <ranges>
 
 using namespace std;
 
@@ -599,16 +601,197 @@ float medianOfSortedArrays(vector<int> nums1, vector<int> nums2) {
 //---------------12----------------------------------------------------------------------------------------------
 
 struct Trie {
-    string value;
-    Trie* left;
-    Trie* right;
+    char value;
+    bool key;
+    map <char, Trie*> childs;
 
-    Trie(string val) : value(val), left(nullptr), right(nullptr) {};
+    Trie(char val) : value(val), key(false), childs({}) {};
+
+    bool hasChild(char ch) {
+        if (this->childs.find(ch) != this->childs.end()) {
+            return true;
+        }
+        return false;
+    }
+
+    void addChild(char ch) {
+        this->childs[ch] = new Trie(ch);
+    }
+
+    Trie* getChild(char ch) {
+        return this->childs.at(ch);
+    }
+
+    void setKey(bool isValid) {
+        this->key = isValid;
+    }
 
     void insert(string str) {
+        Trie* node = this;
+        for (int i = 0; i < str.length(); i++) {
+            char ch = str[i];
+            if (!node->hasChild(ch)) {
+                node->addChild(ch);
+            }
+            node = node->getChild(ch);
+        }
+        node->setKey(true);
+    }
 
+    bool search(string str) {
+        Trie* node = this;
+        for (int i = 0; i < str.length(); i++) {
+            char ch = str[i];
+            if (!node->hasChild(ch)) {
+                return false;
+            }
+            node = node->getChild(ch);
+        }
+        return node->key;
+    }
+
+    bool startsWith(string str) {
+        if (str.length() == 0) {
+            return true;
+        }
+
+        Trie* node = this;
+        for (int i = 0; i < str.length(); i++) {
+            char ch = str[i];
+            if (!node->hasChild(ch)) {
+                return false;
+            }
+            node = node->getChild(ch);
+        }
+        return true;
     }
 };
+
+//---------------13----------------------------------------------------------------------------------------------
+
+bool isOneLetterDiffer(string word1, string word2) {
+    if (word1.length() != word2.length()) {
+        return false;
+    }
+
+    int difCounter = 0;
+
+    for (int i = 0; i < word1.length(); i++) {
+        if (word1[i] != word2[i]) {
+            difCounter++;
+        }
+        if (difCounter > 1) {
+            return false;
+        }
+    }
+    if (difCounter == 1) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+struct WordGraph {
+    string word;
+    map<string, WordGraph*> closeWords;
+
+    WordGraph(string w) : word(w), closeWords({}) {};
+};
+
+map<string, WordGraph*> createGraph(vector<string> wordList) {
+    map<string, WordGraph*> wordNodeMap;
+
+    for (int i = 0; i < wordList.size(); i++) {
+        WordGraph* node = new WordGraph(wordList[i]);
+        wordNodeMap[wordList[i]] = node;
+    }
+
+    for (const auto& it : wordNodeMap) {
+        WordGraph* node = it.second;
+        for (int i = 0; i < wordList.size(); i++) {
+            if (it.first == wordList[i]) {
+                continue;
+            }
+            if (isOneLetterDiffer(it.first, wordList[i])) {
+                node->closeWords[wordList[i]] = wordNodeMap.at(wordList[i]);
+            }
+        }
+    }
+    return wordNodeMap;
+}
+
+void addBeginWord(vector<string>& wordList, string beginWord) {
+    if (count(wordList.begin(), wordList.end(), beginWord) == 0) {
+        wordList.push_back(beginWord);
+    }
+}
+
+int countSteps(string beginWord, string endWord, vector<string> wordList) {
+    addBeginWord(wordList, beginWord);
+    map<string, WordGraph*> wordMap = createGraph(wordList);
+    queue<WordGraph*> q;
+    unordered_set<string> visited;
+
+    q.push(wordMap.at(beginWord));
+    visited.insert(beginWord);
+    int len = 1;
+
+    while (!q.empty()) {
+        int size = q.size();
+        for (int i = 0; i < size; i++) {
+            WordGraph* current = q.front();
+            q.pop();
+            if (current->word == endWord) {
+                for (auto& pair : wordMap) {
+                    delete pair.second;
+                }
+                return len;
+            }
+            for (const auto& pair : current->closeWords) {
+                if (visited.find(pair.first) == visited.end()) {
+                    visited.insert(pair.first);
+                    q.push(pair.second);
+                }
+            }
+        }
+        len++;
+    }
+
+    for (auto& pair : wordMap) {
+        delete pair.second;
+    }
+
+    return 0;
+}
+
+
+//vector<vector<int>> breadthFirstSearch(TreeNode* root) {
+//    if (root == nullptr) return { {} };
+//
+//    queue<TreeNode*> q;
+//    q.push(root);
+//    int lvl = 0;
+//    vector<vector<int>> arr;
+//
+//    while (!q.empty()) {
+//        arr.resize(lvl + 1);
+//        int lvlSize = q.size();
+//        for (int i = 0; i < lvlSize; i++) {
+//            TreeNode* current = q.front();
+//
+//            q.pop();
+//
+//            arr[lvl].push_back(current->value);
+//
+//            if (current->left != nullptr) q.push(current->left);
+//            if (current->right != nullptr) q.push(current->right);
+//        }
+//        lvl++;
+//    }
+//
+//    return arr;
+//}
 
 
 int main()
@@ -656,7 +839,6 @@ int main()
     l = createNodeList({ 1, 2, 3, 4, 5, 6, 7 });
     l.print();
     reverseList(l).print();*/
-
 
     //--------------------6------------------------------
 
@@ -737,6 +919,23 @@ int main()
     printArray(arr1);
     printArray(arr2);
     cout << "Median: " << medianOfSortedArrays(arr1, arr2) << endl;*/
+
+    //--------------------12------------------------------
+
+    /*Trie* trie = new Trie(' ');
+    trie->insert("apple");
+    cout << "Search \"apple\": " << trie->search("apple") << endl;
+    cout << "Search \"app\": " << trie->search("app") << endl;
+    cout << "Search prefix \"app\": " << trie->startsWith("app") << endl;
+    trie->insert("app");
+    cout << "Search \"app\": " << trie->search("app") << endl;*/
+
+    //--------------------13------------------------------
+
+    //string beginWord = "hit";
+    //string endWord = "cog";
+    //vector<string> wordList = { "hot", "dot", "dog", "lot", "log", "cog" };
+    //cout << countSteps(beginWord, endWord, wordList) << endl;
 
 }
 
