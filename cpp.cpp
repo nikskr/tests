@@ -765,34 +765,100 @@ int countSteps(string beginWord, string endWord, vector<string> wordList) {
     return 0;
 }
 
+//---------------14----------------------------------------------------------------------------------------------
 
-//vector<vector<int>> breadthFirstSearch(TreeNode* root) {
-//    if (root == nullptr) return { {} };
-//
-//    queue<TreeNode*> q;
-//    q.push(root);
-//    int lvl = 0;
-//    vector<vector<int>> arr;
-//
-//    while (!q.empty()) {
-//        arr.resize(lvl + 1);
-//        int lvlSize = q.size();
-//        for (int i = 0; i < lvlSize; i++) {
-//            TreeNode* current = q.front();
-//
-//            q.pop();
-//
-//            arr[lvl].push_back(current->value);
-//
-//            if (current->left != nullptr) q.push(current->left);
-//            if (current->right != nullptr) q.push(current->right);
-//        }
-//        lvl++;
-//    }
-//
-//    return arr;
-//}
+int countMaxArea(vector<int> heights) {
+    heights.push_back(0);
+    stack<int> indxStack;
+    int maxArea = 0;
 
+    for (int i = 0; i < heights.size(); i++) {
+        while (!indxStack.empty() && heights[i] < heights[indxStack.top()]) {
+            int h = heights[indxStack.top()];
+            indxStack.pop();
+            int w = 0;
+            if (indxStack.empty()) {
+                w = i;
+            }
+            else {
+                w = i - indxStack.top() - 1;
+            }
+            maxArea = max(maxArea, h * w);
+        }
+        indxStack.push(i);
+    }
+    return maxArea;
+}
+
+//---------------15----------------------------------------------------------------------------------------------
+
+
+string serializeTree(TreeNode* root) {
+    vector<vector<int>> arr = breadthFirstSearch(root);
+    string result = "";
+    string sep = " ";
+    for (int i = 0; i < arr.size(); i++) {
+        for (int j = 0; j < arr[i].size(); j++) {
+            if (i == arr.size() - 1 && j != arr[i].size() - 1) {
+                result += to_string(arr[i][j]) + sep;
+            }
+            else {
+                result += to_string(arr[i][j]);
+            }
+        }
+    }
+
+    return result;
+}
+
+void addNodeWithValue(TreeNode*& root, int val) {
+    TreeNode* node = root;
+    if (root == nullptr) {
+        root = new TreeNode(val);
+        return;
+    }
+    while (node) {
+        if (node->value > val) {
+            if (node->left != nullptr) {
+                node = node->left;
+            }
+            else {
+                node->left = new TreeNode(val);
+                return;
+            }
+        }
+        else if (node->value < val) {
+            if (node->right != nullptr) {
+                node = node->right;
+            }
+            else {
+                node->right = new TreeNode(val);
+                return;
+            }
+        }
+    }
+    if (node != nullptr && node->value == val) return;
+}
+
+TreeNode* deserializeData(string data) {
+    string str = "";
+    string sep = " ";
+    TreeNode* root = nullptr;
+
+    for (int i = 0; i < data.length(); i++) {
+        if (data[i] == ' ') {
+            if (!str.empty()) {
+                addNodeWithValue(root, stoi(str));
+                str = "";
+            }
+        }
+        else {
+            str += data[i];
+        }
+    }
+
+    return root;
+}
 
 int main()
 {
@@ -937,5 +1003,29 @@ int main()
     //vector<string> wordList = { "hot", "dot", "dog", "lot", "log", "cog" };
     //cout << countSteps(beginWord, endWord, wordList) << endl;
 
+    //--------------------14------------------------------
+
+    /*vector<int> heights = { 2, 1, 5, 6, 2, 3 };
+    cout << countMaxArea(heights) << endl;*/
+
+    //--------------------15------------------------------
+
+    /*TreeNode* root = new TreeNode(10);
+    root->left = new TreeNode(5);
+    root->right = new TreeNode(16);
+    root->left->left = new TreeNode(2);
+    root->left->left->left = new TreeNode(1);
+    root->left->left->right = new TreeNode(3);
+    root->right->left = new TreeNode(13);
+    root->right->right = new TreeNode(20);
+    root->right->left->left = new TreeNode(12);
+
+    string data = serializeTree(root);
+
+    cout << data << endl;
+
+    TreeNode* deserializedData = deserializeData(data);
+
+    printResult(breadthFirstSearch(deserializedData));*/
 }
 
